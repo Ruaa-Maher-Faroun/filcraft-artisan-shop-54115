@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 30 60% 97%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 0 100% 27%;
+    --primary-foreground: 30 60% 97%;
+
+    --secondary: 30 30% 79%;
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 30 20% 90%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 340 67% 30%;
+    --accent-foreground: 30 60% 97%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 30 60% 97%;
+
+    --border: 30 20% 86%;
+    --input: 30 20% 86%;
+    --ring: 0 100% 27%;
+
+    --radius: 0.5rem;
+
+    /* Custom FilCraft colors */
+    --filcraft-cream: 30 60% 97%;
+    --filcraft-red: 0 100% 27%;
+    --filcraft-beige: 30 30% 79%;
+    --filcraft-text: 0 0% 10%;
+    --filcraft-accent: 340 67% 30%;
+    --filcraft-border: 30 20% 86%;
+  }
+
+  .dark {
+    --background: 0 0% 10%;
+    --foreground: 30 60% 97%;
+
+    --card: 0 0% 15%;
+    --card-foreground: 30 60% 97%;
+
+    --popover: 0 0% 15%;
+    --popover-foreground: 30 60% 97%;
+
+    --primary: 0 100% 35%;
+    --primary-foreground: 30 60% 97%;
+
+    --secondary: 30 15% 20%;
+    --secondary-foreground: 30 60% 97%;
+
+    --muted: 30 10% 25%;
+    --muted-foreground: 30 20% 70%;
+
+    --accent: 340 67% 40%;
+    --accent-foreground: 30 60% 97%;
+
+    --destructive: 0 62.8% 40%;
+    --destructive-foreground: 30 60% 97%;
+
+    --border: 30 10% 25%;
+    --input: 30 10% 25%;
+    --ring: 0 100% 35%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
