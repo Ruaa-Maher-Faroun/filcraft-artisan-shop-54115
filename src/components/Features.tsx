@@ -5,23 +5,23 @@ const Features = () => {
   const features = [
     {
       icon: Store,
-      title: "Your Digital Storefront",
-      description: "Create a beautiful space to showcase your products with customizable profiles that reflect your brand.",
+      title: "واجهة متجرك الرقمية",
+      description: "أنشئ مساحة جميلة لعرض منتجاتك مع ملفات تعريف قابلة للتخصيص تعكس علامتك التجارية.",
     },
     {
       icon: Layout,
-      title: "Beautiful Product Cards",
-      description: "Display your items with elegant, responsive cards that highlight the craftsmanship of your work.",
+      title: "بطاقات منتجات جميلة",
+      description: "اعرض منتجاتك ببطاقات أنيقة ومتجاوبة تبرز حرفية عملك.",
     },
     {
       icon: TrendingUp,
-      title: "Grow Your Sales",
-      description: "Reach more customers and manage your inventory efficiently with our intuitive platform.",
+      title: "نمِّ مبيعاتك",
+      description: "اصل إلى المزيد من العملاء وأدر مخزونك بكفاءة من خلال منصتنا البديهية.",
     },
     {
       icon: Users,
-      title: "Built for Small Business",
-      description: "Designed specifically for artisans and small business owners who value quality and authenticity.",
+      title: "مصمم للأعمال الصغيرة",
+      description: "مصمم خصيصاً للحرفيين وأصحاب الأعمال الصغيرة الذين يقدرون الجودة والأصالة.",
     },
   ];
 
@@ -29,9 +29,9 @@ const Features = () => {
     <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-foreground mb-4">Everything You Need to Succeed</h2>
+          <h2 className="text-4xl font-bold text-foreground mb-4">كل ما تحتاجه للنجاح</h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Powerful tools designed to help your business thrive in the digital marketplace
+            أدوات قوية مصممة لمساعدة عملك على النمو في السوق الرقمي
           </p>
         </div>
         

@@ -14,25 +14,25 @@ const Header = () => {
           
           <nav className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-foreground/80 hover:text-foreground transition-colors">
-              Features
+              المميزات
             </a>
             <a href="#showcase" className="text-foreground/80 hover:text-foreground transition-colors">
-              Showcase
+              المعرض
             </a>
             <a href="#pricing" className="text-foreground/80 hover:text-foreground transition-colors">
-              Pricing
+              الأسعار
             </a>
             <a href="#about" className="text-foreground/80 hover:text-foreground transition-colors">
-              About
+              من نحن
             </a>
           </nav>
           
           <div className="flex items-center gap-4">
             <Button variant="ghost" className="hidden md:inline-flex">
-              Sign In
+              تسجيل الدخول
             </Button>
             <Button className="bg-primary hover:bg-accent text-primary-foreground">
-              Get Started
+              ابدأ الآن
             </Button>
             <Button variant="ghost" size="icon" className="md:hidden">
               <Menu className="h-5 w-5" />
