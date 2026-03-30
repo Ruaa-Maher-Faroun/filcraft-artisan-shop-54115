@@ -46,12 +46,13 @@ const Pricing = () => {
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  <Button className={`w-full ${plan.popular ? "bg-primary hover:bg-accent text-primary-foreground" : ""}`} variant={plan.popular ? "default" : "outline"}>
+                  <Button className={`w-full ${isPopular ? "bg-primary hover:bg-accent text-primary-foreground" : ""}`} variant={isPopular ? "default" : "outline"}>
                     {t.pricing.cta}
                   </Button>
                 </CardFooter>
               </Card>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
