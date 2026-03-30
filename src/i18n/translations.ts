@@ -187,4 +187,4 @@ export const translations = {
 } as const;
 
 export type Language = "ar" | "en";
-export type Translations = typeof translations.ar;
+export type Translations = (typeof translations)["ar"];

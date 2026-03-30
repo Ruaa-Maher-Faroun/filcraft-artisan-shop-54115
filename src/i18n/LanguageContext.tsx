@@ -3,7 +3,7 @@ import { translations, Language } from "./translations";
 
 interface LanguageContextType {
   language: Language;
-  t: Translations;
+  t: (typeof translations)[Language];
   toggleLanguage: () => void;
   isRTL: boolean;
 }
