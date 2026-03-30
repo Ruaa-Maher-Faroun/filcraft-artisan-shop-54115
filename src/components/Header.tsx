@@ -5,7 +5,8 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import filcraftLogo from "@/assets/filcraft-logo.png";
 
 const Header = () => {
-  const { t, toggleLanguage, language } = useLanguage();
+  const { lang, toggle } = useLanguage();
+  const ar = lang === "ar";
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
@@ -17,31 +18,29 @@ const Header = () => {
               <span className="text-2xl font-bold text-foreground">FilCraft</span>
             </Link>
           </div>
-          
           <nav className="hidden md:flex items-center gap-8">
             <Link to="/#features" className="text-foreground/80 hover:text-foreground transition-colors">
-              {t.nav.features}
+              {ar ? "المميزات" : "Features"}
             </Link>
             <Link to="/#showcase" className="text-foreground/80 hover:text-foreground transition-colors">
-              {t.nav.showcase}
+              {ar ? "المعرض" : "Showcase"}
             </Link>
             <Link to="/pricing" className="text-foreground/80 hover:text-foreground transition-colors">
-              {t.nav.pricing}
+              {ar ? "الأسعار" : "Pricing"}
             </Link>
             <Link to="/about" className="text-foreground/80 hover:text-foreground transition-colors">
-              {t.nav.about}
+              {ar ? "من نحن" : "About"}
             </Link>
           </nav>
-          
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={toggleLanguage} title={language === "ar" ? "Switch to English" : "التبديل إلى العربية"}>
+            <Button variant="ghost" size="icon" onClick={toggle} title={ar ? "Switch to English" : "التبديل إلى العربية"}>
               <Globe className="h-5 w-5" />
             </Button>
             <Button variant="ghost" className="hidden md:inline-flex">
-              {t.nav.login}
+              {ar ? "تسجيل الدخول" : "Login"}
             </Button>
             <Button className="bg-primary hover:bg-accent text-primary-foreground">
-              {t.nav.getStarted}
+              {ar ? "ابدأ الآن" : "Get Started"}
             </Button>
             <Button variant="ghost" size="icon" className="md:hidden">
               <Menu className="h-5 w-5" />
