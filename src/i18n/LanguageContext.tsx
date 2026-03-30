@@ -1,20 +1,19 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from "react";
-import { translations, Language } from "./translations";
+
+type Language = "ar" | "en";
 
 interface LanguageContextType {
-  language: Language;
-  t: (typeof translations)[Language];
-  toggleLanguage: () => void;
-  isRTL: boolean;
+  lang: Language;
+  toggle: () => void;
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const Ctx = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>("ar");
+  const [lang, setLang] = useState<Language>("ar");
 
-  const toggleLanguage = useCallback(() => {
-    setLanguage((prev) => {
+  const toggle = useCallback(() => {
+    setLang((prev) => {
       const next = prev === "ar" ? "en" : "ar";
       document.documentElement.lang = next;
       document.documentElement.dir = next === "ar" ? "rtl" : "ltr";
@@ -22,18 +21,11 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     });
   }, []);
 
-  const value: LanguageContextType = {
-    language,
-    t: translations[language],
-    toggleLanguage,
-    isRTL: language === "ar",
-  };
-
-  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
+  return <Ctx.Provider value={{ lang, toggle }}>{children}</Ctx.Provider>;
 };
 
 export const useLanguage = () => {
-  const ctx = useContext(LanguageContext);
+  const ctx = useContext(Ctx);
   if (!ctx) throw new Error("useLanguage must be used within LanguageProvider");
   return ctx;
 };
