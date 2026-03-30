@@ -9,11 +9,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 
 const Contact = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success(t.language === "ar" ? "تم إرسال رسالتك بنجاح!" : "Your message has been sent!");
+    toast.success(language === "ar" ? "تم إرسال رسالتك بنجاح!" : "Your message has been sent!");
   };
 
   return (
