@@ -19,9 +19,11 @@ const Pricing = () => {
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">{t.pricing.subtitle}</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {t.pricing.plans.map((plan, index) => (
-              <Card key={index} className={`border-border relative ${plan.popular ? "ring-2 ring-primary shadow-xl scale-105" : ""}`}>
-                {plan.popular && (
+            {t.pricing.plans.map((plan, index) => {
+              const isPopular = "popular" in plan && (plan as any).popular;
+              return (
+              <Card key={index} className={`border-border relative ${isPopular ? "ring-2 ring-primary shadow-xl scale-105" : ""}`}>
+                {isPopular && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">
                     {t.pricing.popular}
                   </Badge>
