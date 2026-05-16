@@ -6,8 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Globe, LayoutDashboard, Package, ShoppingBag, Settings, BarChart3, Plus, Search, ExternalLink, DollarSign, Users, TrendingUp, Eye } from "lucide-react";
+import { Globe, LayoutDashboard, Package, ShoppingBag, Settings, BarChart3, Plus, Search, ExternalLink, DollarSign, TrendingUp, Eye } from "lucide-react";
 import { mockStores, mockBusinessStats, mockOrders } from "@/data/mock";
 import filcraftLogo from "@/assets/filcraft-logo.png";
 
