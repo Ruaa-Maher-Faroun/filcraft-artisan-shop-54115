@@ -1,27 +1,140 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Globe, LayoutDashboard, Package, ShoppingBag, Settings, BarChart3, Plus, Search, ExternalLink, DollarSign, TrendingUp, Eye } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Globe, LayoutDashboard, Package, ShoppingBag, Settings, BarChart3, Plus, Search, ExternalLink, DollarSign, TrendingUp, Eye, Pencil, Trash2 } from "lucide-react";
 import { mockStores, mockBusinessStats, mockOrders } from "@/data/mock";
 import filcraftLogo from "@/assets/filcraft-logo.png";
+
+type Product = {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  price: number;
+  categoryAr: string;
+  categoryEn: string;
+  image: string;
+};
+
+type StoreProfile = {
+  nameAr: string;
+  nameEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  locationAr: string;
+  locationEn: string;
+  logo: string;
+  cover: string;
+};
+
+const STORAGE_KEY = "filcraft.business.store";
+const PRODUCTS_KEY = "filcraft.business.products";
+
+const initialStore = mockStores[0];
+const initialProfile: StoreProfile = {
+  nameAr: initialStore.nameAr,
+  nameEn: initialStore.nameEn,
+  descriptionAr: initialStore.descriptionAr,
+  descriptionEn: initialStore.descriptionEn,
+  locationAr: initialStore.locationAr,
+  locationEn: initialStore.locationEn,
+  logo: initialStore.logo,
+  cover: initialStore.cover,
+};
+
+const emptyProduct: Product = {
+  id: "",
+  nameAr: "", nameEn: "",
+  descriptionAr: "", descriptionEn: "",
+  price: 0,
+  categoryAr: "", categoryEn: "",
+  image: "https://images.unsplash.com/photo-1629978101130-4b7d3b0a6de8?w=400&h=300&fit=crop",
+};
 
 const BusinessDashboard = () => {
   const { lang, toggle } = useLanguage();
   const ar = lang === "ar";
-  const store = mockStores[0];
   const [tab, setTab] = useState("overview");
+
+  // Persisted state
+  const [profile, setProfile] = useState<StoreProfile>(() => {
+    if (typeof window === "undefined") return initialProfile;
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : initialProfile;
+  });
+  const [products, setProducts] = useState<Product[]>(() => {
+    if (typeof window === "undefined") return initialStore.products;
+    const raw = localStorage.getItem(PRODUCTS_KEY);
+    return raw ? JSON.parse(raw) : initialStore.products;
+  });
+
+  useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(profile)); }, [profile]);
+  useEffect(() => { localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products)); }, [products]);
+
+  // Editor drafts
+  const [profileDraft, setProfileDraft] = useState<StoreProfile>(profile);
+  useEffect(() => { setProfileDraft(profile); }, [profile]);
+
+  const [search, setSearch] = useState("");
+  const [editing, setEditing] = useState<Product | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const openNewProduct = () => {
+    setEditing({ ...emptyProduct, id: `p_${Date.now()}` });
+    setDialogOpen(true);
+  };
+  const openEditProduct = (p: Product) => {
+    setEditing({ ...p });
+    setDialogOpen(true);
+  };
+  const saveProduct = () => {
+    if (!editing) return;
+    if (!editing.nameEn.trim() && !editing.nameAr.trim()) {
+      toast.error(ar ? "الرجاء إدخال اسم المنتج" : "Please enter a product name");
+      return;
+    }
+    setProducts((prev) => {
+      const exists = prev.some((p) => p.id === editing.id);
+      return exists ? prev.map((p) => (p.id === editing.id ? editing : p)) : [editing, ...prev];
+    });
+    setDialogOpen(false);
+    setEditing(null);
+    toast.success(ar ? "تم حفظ المنتج" : "Product saved");
+  };
+  const deleteProduct = (id: string) => {
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+    toast.success(ar ? "تم حذف المنتج" : "Product deleted");
+  };
+  const saveProfile = () => {
+    setProfile(profileDraft);
+    toast.success(ar ? "تم حفظ التغييرات" : "Changes saved");
+  };
+  const resetAll = () => {
+    setProfile(initialProfile);
+    setProducts(initialStore.products);
+    toast.success(ar ? "تمت إعادة التعيين" : "Reset to defaults");
+  };
+
+  const filtered = products.filter((p) =>
+    [p.nameAr, p.nameEn, p.categoryAr, p.categoryEn].some((v) => v.toLowerCase().includes(search.toLowerCase()))
+  );
 
   const nav = [
     { id: "overview", labelAr: "نظرة عامة", labelEn: "Overview", icon: LayoutDashboard },
     { id: "products", labelAr: "المنتجات", labelEn: "Products", icon: Package },
     { id: "orders", labelAr: "الطلبات", labelEn: "Orders", icon: ShoppingBag },
     { id: "analytics", labelAr: "التحليلات", labelEn: "Analytics", icon: BarChart3 },
-    { id: "settings", labelAr: "الإعدادات", labelEn: "Settings", icon: Settings },
+    { id: "settings", labelAr: "ملف المتجر", labelEn: "Store profile", icon: Settings },
   ];
 
   const statusColors: Record<string, string> = {
@@ -55,10 +168,13 @@ const BusinessDashboard = () => {
             );
           })}
         </nav>
-        <div className="p-4 border-t border-border">
-          <Link to={`/store/${store.id}`} target="_blank">
+        <div className="p-4 border-t border-border space-y-2">
+          <Link to={`/store/${initialStore.id}`} target="_blank">
             <Button variant="outline" className="w-full"><ExternalLink className="w-4 h-4" />{ar ? "عرض المتجر" : "View store"}</Button>
           </Link>
+          <Button variant="ghost" size="sm" className="w-full text-xs text-muted-foreground" onClick={resetAll}>
+            {ar ? "إعادة تعيين البيانات التجريبية" : "Reset mock data"}
+          </Button>
         </div>
       </aside>
 
@@ -67,11 +183,13 @@ const BusinessDashboard = () => {
         <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6">
           <div>
             <p className="text-xs text-muted-foreground">{ar ? "مرحباً بعودتك" : "Welcome back"}</p>
-            <p className="font-semibold text-foreground">{ar ? store.nameAr : store.nameEn}</p>
+            <p className="font-semibold text-foreground">{ar ? profile.nameAr : profile.nameEn}</p>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={toggle}><Globe className="w-4 h-4" /></Button>
-            <div className="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-sm">A</div>
+            <div className="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-sm">
+              {(ar ? profile.nameAr : profile.nameEn).charAt(0)}
+            </div>
           </div>
         </header>
 
@@ -141,31 +259,47 @@ const BusinessDashboard = () => {
           {tab === "products" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold">{ar ? "المنتجات" : "Products"}</h1>
-                <Button className="bg-primary hover:bg-accent text-primary-foreground"><Plus className="w-4 h-4" />{ar ? "إضافة منتج" : "Add product"}</Button>
+                <div>
+                  <h1 className="text-2xl font-bold">{ar ? "المنتجات" : "Products"}</h1>
+                  <p className="text-sm text-muted-foreground">{products.length} {ar ? "منتج في متجرك" : "products in your store"}</p>
+                </div>
+                <Button className="bg-primary hover:bg-accent text-primary-foreground" onClick={openNewProduct}>
+                  <Plus className="w-4 h-4" />{ar ? "إضافة منتج" : "Add product"}
+                </Button>
               </div>
               <div className="relative max-w-sm">
                 <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input className="ps-9" placeholder={ar ? "ابحث عن منتج..." : "Search products..."} />
+                <Input className="ps-9" placeholder={ar ? "ابحث عن منتج..." : "Search products..."} value={search} onChange={(e) => setSearch(e.target.value)} />
               </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {store.products.map((p) => (
-                  <Card key={p.id} className="overflow-hidden">
-                    <img src={p.image} alt="" className="aspect-[4/3] w-full object-cover" />
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start mb-1">
-                        <p className="font-semibold">{ar ? p.nameAr : p.nameEn}</p>
-                        <span className="text-primary font-bold">${p.price}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mb-3">{ar ? p.categoryAr : p.categoryEn}</p>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="flex-1">{ar ? "تعديل" : "Edit"}</Button>
-                        <Button variant="ghost" size="sm" className="text-destructive">{ar ? "حذف" : "Delete"}</Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              {filtered.length === 0 ? (
+                <Card className="p-12 text-center text-muted-foreground">
+                  <Package className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                  <p>{ar ? "لا توجد منتجات. أضف أول منتج لك!" : "No products yet. Add your first one!"}</p>
+                </Card>
+              ) : (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filtered.map((p) => (
+                    <Card key={p.id} className="overflow-hidden">
+                      <img src={p.image} alt="" className="aspect-[4/3] w-full object-cover" />
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-1">
+                          <p className="font-semibold">{ar ? p.nameAr || p.nameEn : p.nameEn || p.nameAr}</p>
+                          <span className="text-primary font-bold">${p.price}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-3">{ar ? p.categoryAr : p.categoryEn}</p>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" className="flex-1" onClick={() => openEditProduct(p)}>
+                            <Pencil className="w-3.5 h-3.5" />{ar ? "تعديل" : "Edit"}
+                          </Button>
+                          <Button variant="ghost" size="sm" className="text-destructive" onClick={() => deleteProduct(p.id)}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -223,27 +357,139 @@ const BusinessDashboard = () => {
           )}
 
           {tab === "settings" && (
-            <Card>
-              <CardHeader><CardTitle>{ar ? "إعدادات المتجر" : "Store settings"}</CardTitle></CardHeader>
-              <CardContent className="space-y-4 max-w-xl">
-                <div>
-                  <label className="text-sm font-medium">{ar ? "اسم المتجر" : "Store name"}</label>
-                  <Input defaultValue={ar ? store.nameAr : store.nameEn} />
+            <div className="grid lg:grid-cols-3 gap-6">
+              {/* Live preview */}
+              <Card className="lg:col-span-1 overflow-hidden h-fit sticky top-6">
+                <div className="h-24 bg-cover bg-center" style={{ backgroundImage: `url(${profileDraft.cover})` }} />
+                <div className="p-4 -mt-10">
+                  <img src={profileDraft.logo} alt="" className="h-16 w-16 rounded-xl border-4 border-card object-cover bg-card" />
+                  <p className="font-bold mt-2">{ar ? profileDraft.nameAr : profileDraft.nameEn}</p>
+                  <p className="text-xs text-muted-foreground mb-2">{ar ? profileDraft.locationAr : profileDraft.locationEn}</p>
+                  <p className="text-sm text-muted-foreground line-clamp-3">{ar ? profileDraft.descriptionAr : profileDraft.descriptionEn}</p>
                 </div>
-                <div>
-                  <label className="text-sm font-medium">{ar ? "الوصف" : "Description"}</label>
-                  <Input defaultValue={ar ? store.descriptionAr : store.descriptionEn} />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">{ar ? "الموقع" : "Location"}</label>
-                  <Input defaultValue={ar ? store.locationAr : store.locationEn} />
-                </div>
-                <Button className="bg-primary hover:bg-accent text-primary-foreground">{ar ? "حفظ التغييرات" : "Save changes"}</Button>
-              </CardContent>
-            </Card>
+              </Card>
+
+              <Card className="lg:col-span-2">
+                <CardHeader>
+                  <CardTitle>{ar ? "ملف المتجر" : "Store profile"}</CardTitle>
+                  <CardDescription>{ar ? "حدّث معلومات متجرك العامة" : "Update your store's public details"}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label>{ar ? "الاسم بالعربية" : "Name (Arabic)"}</Label>
+                      <Input value={profileDraft.nameAr} onChange={(e) => setProfileDraft({ ...profileDraft, nameAr: e.target.value })} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>{ar ? "الاسم بالإنجليزية" : "Name (English)"}</Label>
+                      <Input value={profileDraft.nameEn} onChange={(e) => setProfileDraft({ ...profileDraft, nameEn: e.target.value })} />
+                    </div>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label>{ar ? "الوصف بالعربية" : "Description (Arabic)"}</Label>
+                      <Textarea rows={3} value={profileDraft.descriptionAr} onChange={(e) => setProfileDraft({ ...profileDraft, descriptionAr: e.target.value })} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>{ar ? "الوصف بالإنجليزية" : "Description (English)"}</Label>
+                      <Textarea rows={3} value={profileDraft.descriptionEn} onChange={(e) => setProfileDraft({ ...profileDraft, descriptionEn: e.target.value })} />
+                    </div>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label>{ar ? "الموقع بالعربية" : "Location (Arabic)"}</Label>
+                      <Input value={profileDraft.locationAr} onChange={(e) => setProfileDraft({ ...profileDraft, locationAr: e.target.value })} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>{ar ? "الموقع بالإنجليزية" : "Location (English)"}</Label>
+                      <Input value={profileDraft.locationEn} onChange={(e) => setProfileDraft({ ...profileDraft, locationEn: e.target.value })} />
+                    </div>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label>{ar ? "رابط الشعار" : "Logo URL"}</Label>
+                      <Input value={profileDraft.logo} onChange={(e) => setProfileDraft({ ...profileDraft, logo: e.target.value })} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>{ar ? "رابط صورة الغلاف" : "Cover image URL"}</Label>
+                      <Input value={profileDraft.cover} onChange={(e) => setProfileDraft({ ...profileDraft, cover: e.target.value })} />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <Button className="bg-primary hover:bg-accent text-primary-foreground" onClick={saveProfile}>
+                      {ar ? "حفظ التغييرات" : "Save changes"}
+                    </Button>
+                    <Button variant="outline" onClick={() => setProfileDraft(profile)}>
+                      {ar ? "إلغاء" : "Cancel"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           )}
         </main>
       </div>
+
+      {/* Product editor */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editing && products.some((p) => p.id === editing.id) ? (ar ? "تعديل المنتج" : "Edit product") : (ar ? "منتج جديد" : "New product")}</DialogTitle>
+            <DialogDescription>{ar ? "املأ تفاصيل المنتج باللغتين" : "Fill in product details in both languages"}</DialogDescription>
+          </DialogHeader>
+          {editing && (
+            <div className="space-y-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>{ar ? "الاسم (عربي)" : "Name (Arabic)"}</Label>
+                  <Input value={editing.nameAr} onChange={(e) => setEditing({ ...editing, nameAr: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>{ar ? "الاسم (إنجليزي)" : "Name (English)"}</Label>
+                  <Input value={editing.nameEn} onChange={(e) => setEditing({ ...editing, nameEn: e.target.value })} />
+                </div>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>{ar ? "الوصف (عربي)" : "Description (Arabic)"}</Label>
+                  <Textarea rows={2} value={editing.descriptionAr} onChange={(e) => setEditing({ ...editing, descriptionAr: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>{ar ? "الوصف (إنجليزي)" : "Description (English)"}</Label>
+                  <Textarea rows={2} value={editing.descriptionEn} onChange={(e) => setEditing({ ...editing, descriptionEn: e.target.value })} />
+                </div>
+              </div>
+              <div className="grid sm:grid-cols-3 gap-4">
+                <div className="space-y-1.5">
+                  <Label>{ar ? "الفئة (عربي)" : "Category (AR)"}</Label>
+                  <Input value={editing.categoryAr} onChange={(e) => setEditing({ ...editing, categoryAr: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>{ar ? "الفئة (إنجليزي)" : "Category (EN)"}</Label>
+                  <Input value={editing.categoryEn} onChange={(e) => setEditing({ ...editing, categoryEn: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>{ar ? "السعر (دولار)" : "Price (USD)"}</Label>
+                  <Input type="number" min={0} value={editing.price} onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) || 0 })} />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label>{ar ? "رابط الصورة" : "Image URL"}</Label>
+                <Input value={editing.image} onChange={(e) => setEditing({ ...editing, image: e.target.value })} />
+                {editing.image && (
+                  <img src={editing.image} alt="" className="mt-2 h-32 w-full object-cover rounded-md border border-border" />
+                )}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>{ar ? "إلغاء" : "Cancel"}</Button>
+            <Button className="bg-primary hover:bg-accent text-primary-foreground" onClick={saveProduct}>
+              {ar ? "حفظ" : "Save"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
