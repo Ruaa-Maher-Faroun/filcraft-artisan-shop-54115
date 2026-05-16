@@ -25,8 +25,8 @@ const Header = () => {
             <Link to="/#showcase" className="text-foreground/80 hover:text-foreground transition-colors">
               {ar ? "المعرض" : "Showcase"}
             </Link>
-            <Link to="/pricing" className="text-foreground/80 hover:text-foreground transition-colors">
-              {ar ? "الأسعار" : "Pricing"}
+            <Link to="/business/pricing" className="text-foreground/80 hover:text-foreground transition-colors">
+              {ar ? "للأعمال" : "For business"}
             </Link>
             <Link to="/about" className="text-foreground/80 hover:text-foreground transition-colors">
               {ar ? "من نحن" : "About"}
@@ -39,9 +39,11 @@ const Header = () => {
             <Button variant="ghost" className="hidden md:inline-flex">
               {ar ? "تسجيل الدخول" : "Login"}
             </Button>
-            <Button className="bg-primary hover:bg-accent text-primary-foreground">
-              {ar ? "ابدأ الآن" : "Get Started"}
-            </Button>
+            <Link to="/dashboard/business">
+              <Button className="bg-primary hover:bg-accent text-primary-foreground">
+                {ar ? "لوحة التحكم" : "Dashboard"}
+              </Button>
+            </Link>
             <Button variant="ghost" size="icon" className="md:hidden">
               <Menu className="h-5 w-5" />
             </Button>
